@@ -1,0 +1,32 @@
+import pandas as pd
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+import numpy as np
+
+# 1. Veriyi yükle
+df = pd.read_csv("otomobil_yorum_analizi.csv")
+
+# 2. Yorum sütununu al (gerekirse sütun ismini değiştir)
+yorumlar = df["yorum"].astype(str).tolist()
+
+# 3. TF-IDF vektörleştirme
+vectorizer = TfidfVectorizer(stop_words='turkish')
+tfidf_matrix = vectorizer.fit_transform(yorumlar)
+
+# 4. Kosinüs benzerliği hesapla
+cos_sim_matrix = cosine_similarity(tfidf_matrix)
+
+# 5. Her yorum için en benzer 5 yorumu bul (kendisi hariç)
+for i in range(len(yorumlar)):
+    benzerlikler = list(enumerate(cos_sim_matrix[i]))
+    benzerlikler = sorted(benzerlikler, key=lambda x: x[1], reverse=True)
+    benzerlikler = [b for b in benzerlikler if b[0] != i][:5]
+
+    print(f"\nYorum {i}: {yorumlar[i]}")
+    print("En benzer 5 yorum:")
+    for idx, skor in benzerlikler:
+        print(f"  - ({skor:.2f}) {yorumlar[idx]}")
+
+
+
+  for i in range(10):  # sadece ilk 10 yorum
